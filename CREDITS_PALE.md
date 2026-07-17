@@ -15,6 +15,9 @@ This project is an unofficial fan-made ROM hack. Pokémon is owned by Nintendo, 
 - **mGBA** by [Vicki Pfau](https://mgba.io/)
   Game Boy Advance emulator used for testing and Lua-scripted verification.
 
+- **mGBA-http** by [Niko Uusitalo](https://github.com/nikouu/mGBA-http)
+  HTTP REST API wrapper for mGBA scripting. Enables programmatic control of the emulator from any language.
+
 - **devkitARM** by [devkitPro](https://devkitpro.org/)
   GBA cross-compiler toolchain used to build the ROM.
 

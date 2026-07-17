@@ -156,23 +156,56 @@ grep "gSaveBlock1" pokeemerald.map
 
 ## Running the Harness
 
-### Prerequisites
-- **mGBA dev build (0.11+)** at `C:\Tools\mGBA-dev\current\` — required for `--script` flag
-  - The stable 0.10.5 does NOT support `--script` on Windows
-  - Dev builds: https://mgba.io/downloads.html (Development downloads section)
-- ROM built via GitHub Actions or local WSL (output: `pokeemerald.gba`)
-
-### Windows (automated via dev build)
+### Quick Start (one command)
 ```powershell
-# Run a verification script
-& "C:\Tools\mGBA-dev\current\mGBA.exe" --script tools/harness/lua/boot_verify_run.lua build-output/pokeemerald.gba
+.\tools\harness\scripts\start_testing.ps1
+```
+This launches mGBA (dev build with auto-loaded socket server) + mGBA-http.
+After it's running, Kiro has full control via HTTP at `http://localhost:5000`.
+
+### How It Works
+1. **mGBA dev build** (0.11) launches with `--script mGBASocketServer.lua` (auto-loads the socket server)
+2. **mGBA-http** connects to mGBA's socket and exposes a REST API
+3. **Kiro/scripts** send HTTP requests to `localhost:5000` to control the emulator
+
+### What We Can Do Via HTTP
+```powershell
+# Read game info
+Invoke-RestMethod http://localhost:5000/core/getgametitle     # "POKEMON EMER"
+Invoke-RestMethod http://localhost:5000/core/getgamecode      # "AGB-BPEE"
+Invoke-RestMethod http://localhost:5000/core/currentframe     # frame number
+
+# Press buttons
+Invoke-RestMethod http://localhost:5000/mgba-http/button/tap?button=A -Method Post
+Invoke-RestMethod http://localhost:5000/mgba-http/button/tap?button=Start -Method Post
+
+# Read memory (address as decimal)
+Invoke-RestMethod http://localhost:5000/core/read8?address=50331648    # read 1 byte
+Invoke-RestMethod http://localhost:5000/core/read16?address=50331648   # read 2 bytes
+Invoke-RestMethod http://localhost:5000/core/read32?address=50331648   # read 4 bytes
+
+# Screenshots
+Invoke-RestMethod "http://localhost:5000/core/screenshot?path=C:/path/to/output.png" -Method Post
+
+# Load save state
+Invoke-RestMethod "http://localhost:5000/core/loadstatefile?path=C:/path/to/state.ss1" -Method Post
 ```
 
-### Windows (mGBA 0.10.5 GUI — manual)
-1. Open mGBA (stable)
-2. Load the ROM
-3. Tools → Scripting → File → Load Script → select a `.lua` file
-4. Check console output for PASS/FAIL
+### Swagger UI
+Browse to `http://localhost:5000/index.html` for interactive API docs.
+
+### Prerequisites
+- **mGBA dev build (0.11+)** at `C:\Tools\mGBA-dev\current\` for `--script` auto-load
+- **mGBA-http v0.8.2** at `C:\Tools\mGBA-http\`
+  - `mGBA-http.exe` — HTTP server
+  - `mGBASocketServer.lua` — socket bridge loaded into mGBA
+- ROM at `build-output/pokeemerald.gba`
+
+### Fallback (stable mGBA 0.10.5)
+If using stable mGBA, manually load the socket server:
+1. Open mGBA → load ROM
+2. Tools → Scripting → File → Load Script → `C:\Tools\mGBA-http\mGBASocketServer.lua`
+3. Run `C:\Tools\mGBA-http\mGBA-http.exe`
 
 ## Rules
 - Each verifier tests ONE behavior
