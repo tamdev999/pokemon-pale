@@ -156,25 +156,23 @@ grep "gSaveBlock1" pokeemerald.map
 
 ## Running the Harness
 
-### Windows (mGBA GUI)
-1. Open mGBA
-2. Load the ROM (`pokeemerald.gba`)
-3. Tools → Scripting → Load Script → select a `.lua` file
-4. Check console output for PASS/FAIL
+### Prerequisites
+- **mGBA dev build (0.11+)** at `C:\Tools\mGBA-dev\current\` — required for `--script` flag
+  - The stable 0.10.5 does NOT support `--script` on Windows
+  - Dev builds: https://mgba.io/downloads.html (Development downloads section)
+- ROM built via GitHub Actions or local WSL (output: `pokeemerald.gba`)
 
-### WSL / Linux (headless-ish)
-```bash
-# Single verifier (requires mGBA CLI support or X forwarding)
-./tools/harness/scripts/run_verifier.sh boot_check
-
-# All verifiers
-./tools/harness/scripts/run_all.sh
+### Windows (automated via dev build)
+```powershell
+# Run a verification script
+& "C:\Tools\mGBA-dev\current\mGBA.exe" --script tools/harness/lua/boot_verify_run.lua build-output/pokeemerald.gba
 ```
 
-### Fast-forward mode
-For speed, configure mGBA to run in fast-forward. In Lua you can't directly
-set speed, but you can configure it via mGBA's settings or use the `--fast`
-flag if launching from command line.
+### Windows (mGBA 0.10.5 GUI — manual)
+1. Open mGBA (stable)
+2. Load the ROM
+3. Tools → Scripting → File → Load Script → select a `.lua` file
+4. Check console output for PASS/FAIL
 
 ## Rules
 - Each verifier tests ONE behavior

@@ -5,10 +5,14 @@ inclusion: always
 # Development Conventions
 
 ## Build System
-- Build with `make` inside WSL2 (devkitARM toolchain)
-- `make modern` for the modern build (preferred — enables warnings and modern C features)
-- `make check` to verify ROM integrity
-- `make test` to run the built-in C test suite
+- **Primary build method**: GitHub Actions (push triggers build, download ROM from artifacts)
+- **Local build**: WSL1/WSL2 with `apt-get install binutils-arm-none-eabi gcc-arm-none-eabi libnewlib-arm-none-eabi libpng-dev python3`
+- MSYS2 is NOT supported by current expansion versions
+- `make` / `make modern` — build the ROM (they're the same thing now)
+- `make check` — run the test suite
+- `make debug` — debug build with symbols
+- `make release` — optimized release build with LTO
+- Output: `pokeemerald.gba`
 
 ## File Locations (pokeemerald-expansion)
 - Species definitions: `src/data/pokemon/` and `include/constants/species.h`
