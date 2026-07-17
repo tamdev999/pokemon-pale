@@ -1,0 +1,70 @@
+name: Build Pokemon Pale
+
+on:
+  push:
+    branches:
+      - master
+      - 'feature/**'
+      - 'mechanic/**'
+      - 'content/**'
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+env:
+  GAME_VERSION: EMERALD
+  GAME_REVISION: 0
+  GAME_LANGUAGE: ENGLISH
+  COMPARE: 0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            binutils-arm-none-eabi \
+            gcc-arm-none-eabi \
+            libnewlib-arm-none-eabi \
+            libpng-dev \
+            python3
+
+      - name: Cache build tools
+        uses: actions/cache@v4
+        with:
+          path: |
+            tools/bin2c/bin2c
+            tools/gbafix/gbafix
+            tools/gbagfx/gbagfx
+            tools/jsonproc/jsonproc
+            tools/mapjson/mapjson
+            tools/mid2agb/mid2agb
+            tools/preproc/preproc
+            tools/ramscrgen/ramscrgen
+            tools/rsfont/rsfont
+            tools/scaninc/scaninc
+            tools/trainerproc/trainerproc
+            tools/compresSmol/compresSmol
+            tools/compresSmol/compresSmolTilemap
+            tools/wav2agb/wav2agb
+          key: tools-${{ runner.os }}-${{ hashFiles('tools/*/Makefile', 'tools/**/*.c', 'tools/**/*.cpp', 'tools/**/*.h') }}
+
+      - name: Build ROM
+        run: make -j$(nproc) -O all
+
+      - name: Upload ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-pale-rom
+          path: pokeemerald.gba
+          retention-days: 30
+
+      - name: Upload ELF (for debugging)
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-pale-elf
+          path: pokeemerald.elf
+          retention-days: 7
